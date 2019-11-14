@@ -207,6 +207,62 @@ bool DS3231::getDateTime(DS3231_DateTime *dateTime)
 }
 
 /*!
+ * \brief Check if RTC date and time set after power on
+ * \details
+ *      Read all RTC registers at once to prevent a time/date register change in the middle of the
+ *      register read operation.
+ * \param dateTime
+ *      Date and time structure.
+ * \retval false
+ *      Success
+ * \retval true
+ *      An invalid date/time format was read from the RTC.
+ */
+bool DS3231::isDateTimeReset(DS3231_DateTime *dateTime)
+{
+    uint8_t buf[7];
+
+    // Read clock date and time registers
+    readBuffer(0x00, &buf, sizeof(buf));
+
+    // Convert BCD buffer to Decimal
+    dateTime->second = bcdToDec(buf[0]);
+    dateTime->minute = bcdToDec(buf[1]);
+    dateTime->hour = bcdToDec(buf[2] & 0x3f);
+    dateTime->dayWeek = bcdToDec(buf[3]);
+    dateTime->dayMonth = bcdToDec(buf[4]);
+    dateTime->month = bcdToDec(buf[5] & 0x1f);
+    dateTime->year = 2000 + bcdToDec(buf[6]);
+
+    // Check buffer for valid data
+    if ((dateTime->second > 59) ||
+        (dateTime->minute > 59) ||
+        (dateTime->hour > 23) ||
+        (dateTime->dayMonth < 1) || (dateTime->dayMonth > 31) ||
+        (dateTime->month < 1) || (dateTime->month > 12) ||
+        (dateTime->dayWeek < 1) || (dateTime->dayWeek > 7) ||
+        (dateTime->year > 2099))
+    {
+        // Invalid date/time read from RTC: Clear date time
+        memset(dateTime, 0x00, sizeof(DS3231_DateTime));
+        return true;
+    } 
+	else if ((dateTime->second   == 0) &&
+             (dateTime->minute   == 0) &&
+             (dateTime->hour     == 0) &&
+             (dateTime->dayWeek  == 1) &&		
+             (dateTime->year     == 0) &&
+             (dateTime->month    == 1) &&
+             (dateTime->dayMonth == 1))		
+    {
+        // Date/time read is 01/01/00 01 00:00:00 (DD/MM/YY DOW HH:MM:SS)
+        return true;
+    }
+	
+    return false;
+}
+
+/*!
  * \brief Write time to RTC.
  * \details
  *      Read all date/time register from RTC, update time registers and write all date/time

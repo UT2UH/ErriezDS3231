@@ -172,6 +172,7 @@ public:
     // Date/time functions
     void setDateTime(DS3231_DateTime *dateTime);
     bool getDateTime(DS3231_DateTime *dateTime);
+    bool isDateTimeReset(DS3231_DateTime *dateTime);	
     void setTime(uint8_t hour, uint8_t minute, uint8_t second);
     bool getTime(uint8_t *hour, uint8_t *minute, uint8_t *second);
     uint32_t getEpochTime(DS3231_DateTime *dateTime);
