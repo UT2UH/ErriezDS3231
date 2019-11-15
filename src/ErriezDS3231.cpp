@@ -278,9 +278,9 @@ void DS3231::setTime(uint8_t hour, uint8_t minute, uint8_t second)
     // Read date and time from RTC
     if (getDateTime(&dt) == false) {
         // Update time
-        dt.hour = hour;
-        dt.minute = minute;
-        dt.second = second;
+        dt.Hour = hour;
+        dt.Minute = minute;
+        dt.Second = second;
 
         // Write updated date and time to RTC
         setDateTime(&dt);
