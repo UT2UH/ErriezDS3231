@@ -143,13 +143,13 @@ void DS3231::setDateTime(DS3231_DateTime *dateTime)
     uint8_t buffer[7];
 
     // Encode date time from decimal to BCD
-    buffer[0] = (decToBcd((uint8_t)(dateTime->second & 0x7F)));
-    buffer[1] = (decToBcd((uint8_t)(dateTime->minute & 0x7F)));
-    buffer[2] = (decToBcd((uint8_t)(dateTime->hour & 0x3F)));
-    buffer[3] = (decToBcd((uint8_t)(dateTime->dayWeek & 0x07)));
-    buffer[4] = (decToBcd((uint8_t)(dateTime->dayMonth & 0x3F)));
-    buffer[5] = (decToBcd((uint8_t)(dateTime->month & 0x1F)));
-    buffer[6] = (decToBcd((uint8_t)((dateTime->year - 2000) & 0xFF)));
+    buffer[0] = (decToBcd((uint8_t)(dateTime->Second & 0x7F)));
+    buffer[1] = (decToBcd((uint8_t)(dateTime->Minute & 0x7F)));
+    buffer[2] = (decToBcd((uint8_t)(dateTime->Hour & 0x3F)));
+    buffer[3] = (decToBcd((uint8_t)(dateTime->Wday & 0x07)));
+    buffer[4] = (decToBcd((uint8_t)(dateTime->Day & 0x3F)));
+    buffer[5] = (decToBcd((uint8_t)(dateTime->Month & 0x1F)));
+    buffer[6] = (decToBcd((uint8_t)((dateTime->Year - 30) & 0xFF)));
 
     // Write BCD encoded buffer to RTC registers
     writeBuffer(0x00, buffer, sizeof(buffer));
@@ -181,22 +181,22 @@ bool DS3231::getDateTime(DS3231_DateTime *dateTime)
     readBuffer(0x00, &buf, sizeof(buf));
 
     // Convert BCD buffer to Decimal
-    dateTime->second = bcdToDec(buf[0]);
-    dateTime->minute = bcdToDec(buf[1]);
-    dateTime->hour = bcdToDec(buf[2] & 0x3f);
-    dateTime->dayWeek = bcdToDec(buf[3]);
-    dateTime->dayMonth = bcdToDec(buf[4]);
-    dateTime->month = bcdToDec(buf[5] & 0x1f);
-    dateTime->year = 2000 + bcdToDec(buf[6]);
+    dateTime->Second = bcdToDec(buf[0]);
+    dateTime->Minute = bcdToDec(buf[1]);
+    dateTime->Hour = bcdToDec(buf[2] & 0x3f);
+    dateTime->Wday = bcdToDec(buf[3]);
+    dateTime->Day = bcdToDec(buf[4]);
+    dateTime->Month = bcdToDec(buf[5] & 0x1f);
+    dateTime->Year = 30 + bcdToDec(buf[6]);
 
     // Check buffer for valid data
-    if ((dateTime->second > 59) ||
-        (dateTime->minute > 59) ||
-        (dateTime->hour > 23) ||
-        (dateTime->dayMonth < 1) || (dateTime->dayMonth > 31) ||
-        (dateTime->month < 1) || (dateTime->month > 12) ||
-        (dateTime->dayWeek < 1) || (dateTime->dayWeek > 7) ||
-        (dateTime->year > 2099))
+    if ((dateTime->Second > 59) ||
+        (dateTime->Minute > 59) ||
+        (dateTime->Hour > 23) ||
+        (dateTime->Wday < 1)  || (dateTime->Wday > 7)   ||        
+        (dateTime->Day < 1)   || (dateTime->Day > 31)   ||
+        (dateTime->Month < 1) || (dateTime->Month > 12) ||
+        (dateTime->Year < 30) || (dateTime->Year > 129))
     {
         // Invalid date/time read from RTC: Clear date time
         memset(dateTime, 0x00, sizeof(DS3231_DateTime));
@@ -226,34 +226,34 @@ bool DS3231::isDateTimeReset(DS3231_DateTime *dateTime)
     readBuffer(0x00, &buf, sizeof(buf));
 
     // Convert BCD buffer to Decimal
-    dateTime->second = bcdToDec(buf[0]);
-    dateTime->minute = bcdToDec(buf[1]);
-    dateTime->hour = bcdToDec(buf[2] & 0x3f);
-    dateTime->dayWeek = bcdToDec(buf[3]);
-    dateTime->dayMonth = bcdToDec(buf[4]);
-    dateTime->month = bcdToDec(buf[5] & 0x1f);
-    dateTime->year = 2000 + bcdToDec(buf[6]);
+    dateTime->Second = bcdToDec(buf[0]);
+    dateTime->Minute = bcdToDec(buf[1]);
+    dateTime->Hour = bcdToDec(buf[2] & 0x3f);
+    dateTime->Wday = bcdToDec(buf[3]);
+    dateTime->Day = bcdToDec(buf[4]);
+    dateTime->Month = bcdToDec(buf[5] & 0x1f);
+    dateTime->Year = 30 + bcdToDec(buf[6]);
 
     // Check buffer for valid data
-    if ((dateTime->second > 59) ||
-        (dateTime->minute > 59) ||
-        (dateTime->hour > 23) ||
-        (dateTime->dayMonth < 1) || (dateTime->dayMonth > 31) ||
-        (dateTime->month < 1) || (dateTime->month > 12) ||
-        (dateTime->dayWeek < 1) || (dateTime->dayWeek > 7) ||
-        (dateTime->year > 2099))
+    if ((dateTime->Second > 59) ||
+        (dateTime->Minute > 59) ||
+        (dateTime->Hour > 23) ||
+        (dateTime->Wday < 1) || (dateTime->Wday > 7) ||        
+        (dateTime->Day < 1) || (dateTime->Day > 31) ||
+        (dateTime->Month < 1) || (dateTime->Month > 12) ||
+        (dateTime->Year < 30) || (dateTime->Year > 129))
     {
         // Invalid date/time read from RTC: Clear date time
         memset(dateTime, 0x00, sizeof(DS3231_DateTime));
         return true;
     } 
-	else if ((dateTime->second   == 0) &&
-             (dateTime->minute   == 0) &&
-             (dateTime->hour     == 0) &&
-             (dateTime->dayWeek  == 1) &&		
-             (dateTime->year     == 0) &&
-             (dateTime->month    == 1) &&
-             (dateTime->dayMonth == 1))		
+	else if ((dateTime->Second == 0) &&
+             (dateTime->Minute == 0) &&
+             (dateTime->Hour   == 0) &&
+             (dateTime->Wday   == 1) &&		
+             (dateTime->Day    == 1) &&
+             (dateTime->Month  == 1) &&
+             (dateTime->Year   == 30))		
     {
         // Date/time read is 01/01/00 01 00:00:00 (DD/MM/YY DOW HH:MM:SS)
         return true;
@@ -343,29 +343,30 @@ uint32_t DS3231::getEpochTime(DS3231_DateTime *dateTime)
     uint16_t days;
     uint8_t i;
 
+
     // Convert date time to epoch
     // Subtract year 2000
-    year = dateTime->year - 2000;
+    year = dateTime->Year - 30;    
 
     // Calculate total number of days including leap days
     days = ((365 * year) + (year + 3) / 4);
 
     // Add number of days each month in current year
-    for (i = 1; i < dateTime->month; i++) {
+    for (i = 1; i < dateTime->Month; i++) {
         days += pgm_read_byte(daysMonth + i - 1);
     }
 
     // Check month and leap year
-    if ((dateTime->month > 2) && ((year % 4) == 0)) {
+    if ((dateTime->Month > 2) && ((year % 4) == 0)) {
         days++;
     }
 
     // Add number of days in current month
-    days += (uint16_t)(dateTime->dayMonth - 1);
+    days += (uint16_t)(dateTime->Day - 1);
 
     // Calculate epoch, starting at offset year 2000
     return SECONDS_FROM_1970_TO_2000 +
-           (((((days * 24UL) + dateTime->hour) * 60) + dateTime->minute) * 60) + dateTime->second;
+           (((((days * 24UL) + dateTime->Hour) * 60) + dateTime->Minute) * 60) + dateTime->Second;
 }
 
 //--------------------------------------------------------------------------------------------------

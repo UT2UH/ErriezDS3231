@@ -101,14 +101,14 @@
  * \brief Date time structure
  */
 typedef struct DS3231_DateTime_s {
-    uint8_t second;             //!< Second 0..59
-    uint8_t minute;             //!< Minute 0..59
-    uint8_t hour;               //!< Hour 0..23
-    uint8_t dayWeek;            //!< Day of the week (1 = Monday)
-    uint8_t dayMonth;           //!< Day of the month 1..31
-    uint8_t month;              //!< Month 1..12
-    uint16_t year;              //!< Year 2000..2099
-} DS3231_DateTime;
+    uint8_t Second;             //!< Second 0..59
+    uint8_t Minute;             //!< Minute 0..59
+    uint8_t Hour;               //!< Hour 0..23
+    uint8_t Wday;               //!< Day of the week (1 = Monday)
+    uint8_t Day;                //!< Day of the month 1..31
+    uint8_t Month;              //!< Month 1..12
+    uint8_t Year;               //!< Offset from 1970 for compatibility with ezTime 
+} DS3231_DateTime; 
 
 /*!
  * \brief Alarm ID
